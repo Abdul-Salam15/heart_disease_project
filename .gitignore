@@ -21,8 +21,8 @@ media/
 staticfiles/
 
 # Models and dataset (do not commit large binary artifacts)
-models_data/
-data/
+# models_data/    <-- removed so models can be included for Render deployment
+# data/           <-- keep datasets out if you prefer; uncomment to ignore
 
 # Environment
 .env
