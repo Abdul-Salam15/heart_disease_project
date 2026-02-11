@@ -107,124 +107,18 @@ def results_view(request, prediction_id):
         prediction = Prediction.objects.get(id=prediction_id)
         blockchain = prediction.blockchain
         
-        # Load test data and models for evaluation
+        # Use precomputed evaluation artifacts from ml_manager to avoid slow
+        # per-request computation. These are prepared at import/startup if
+        # test data is available.
         try:
-            import joblib
-            import matplotlib
-            matplotlib.use('Agg')
-            import matplotlib.pyplot as plt
-            import seaborn as sns
-            from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
-            import io
-            import base64
-            from django.conf import settings
-            
-            # Load models and test data
-            log_model = joblib.load(settings.MODELS_DIR / 'logistic_model.pkl')
-            rf_model = joblib.load(settings.MODELS_DIR / 'rf_model.pkl')
-            X_test = joblib.load(settings.MODELS_DIR / 'X_test.pkl')
-            y_test = joblib.load(settings.MODELS_DIR / 'y_test.pkl')
-            
-            # Generate charts and metrics for Logistic Regression
-            log_pred = log_model.predict(X_test)
-            log_pred_proba = log_model.predict_proba(X_test)[:, 1]
-            
-            # Confusion Matrix - Logistic
-            fig, ax = plt.subplots(figsize=(6, 5))
-            cm_log = confusion_matrix(y_test, log_pred)
-            sns.heatmap(cm_log, annot=True, fmt='d', cmap='Blues', ax=ax,
-                       xticklabels=['No Disease', 'Heart Disease'],
-                       yticklabels=['No Disease', 'Heart Disease'])
-            ax.set_xlabel('Predicted', fontsize=12)
-            ax.set_ylabel('Actual', fontsize=12)
-            ax.set_title('Confusion Matrix - Logistic Regression', fontsize=14)
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
-            buf.seek(0)
-            logistic_cm_img = base64.b64encode(buf.read()).decode('utf-8')
-            buf.close()
-            plt.close()
-            
-            # ROC Curve - Logistic
-            fig, ax = plt.subplots(figsize=(6, 5))
-            fpr, tpr, _ = roc_curve(y_test, log_pred_proba)
-            roc_auc_log = roc_auc_score(y_test, log_pred_proba)
-            ax.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc_log:.3f})')
-            ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random Classifier')
-            ax.set_xlim([0.0, 1.0])
-            ax.set_ylim([0.0, 1.05])
-            ax.set_xlabel('False Positive Rate', fontsize=12)
-            ax.set_ylabel('True Positive Rate', fontsize=12)
-            ax.set_title('ROC Curve - Logistic Regression', fontsize=14)
-            ax.legend(loc="lower right")
-            ax.grid(alpha=0.3)
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
-            buf.seek(0)
-            logistic_roc_img = base64.b64encode(buf.read()).decode('utf-8')
-            buf.close()
-            plt.close()
-            
-            # Metrics - Logistic
-            logistic_metrics = {
-                'accuracy': round(accuracy_score(y_test, log_pred) * 100, 2),
-                'precision': round(precision_score(y_test, log_pred) * 100, 2),
-                'recall': round(recall_score(y_test, log_pred) * 100, 2),
-                'f1_score': round(f1_score(y_test, log_pred) * 100, 2),
-                'roc_auc': round(roc_auc_log, 4)
-            }
-            
-            # Generate charts and metrics for Random Forest
-            rf_pred = rf_model.predict(X_test)
-            rf_pred_proba = rf_model.predict_proba(X_test)[:, 1]
-            
-            # Confusion Matrix - Random Forest
-            fig, ax = plt.subplots(figsize=(6, 5))
-            cm_rf = confusion_matrix(y_test, rf_pred)
-            sns.heatmap(cm_rf, annot=True, fmt='d', cmap='Greens', ax=ax,
-                       xticklabels=['No Disease', 'Heart Disease'],
-                       yticklabels=['No Disease', 'Heart Disease'])
-            ax.set_xlabel('Predicted', fontsize=12)
-            ax.set_ylabel('Actual', fontsize=12)
-            ax.set_title('Confusion Matrix - Random Forest', fontsize=14)
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
-            buf.seek(0)
-            rf_cm_img = base64.b64encode(buf.read()).decode('utf-8')
-            buf.close()
-            plt.close()
-            
-            # ROC Curve - Random Forest
-            fig, ax = plt.subplots(figsize=(6, 5))
-            fpr, tpr, _ = roc_curve(y_test, rf_pred_proba)
-            roc_auc_rf = roc_auc_score(y_test, rf_pred_proba)
-            ax.plot(fpr, tpr, color='green', lw=2, label=f'ROC curve (AUC = {roc_auc_rf:.3f})')
-            ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random Classifier')
-            ax.set_xlim([0.0, 1.0])
-            ax.set_ylim([0.0, 1.05])
-            ax.set_xlabel('False Positive Rate', fontsize=12)
-            ax.set_ylabel('True Positive Rate', fontsize=12)
-            ax.set_title('ROC Curve - Random Forest', fontsize=14)
-            ax.legend(loc="lower right")
-            ax.grid(alpha=0.3)
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
-            buf.seek(0)
-            rf_roc_img = base64.b64encode(buf.read()).decode('utf-8')
-            buf.close()
-            plt.close()
-            
-            # Metrics - Random Forest
-            rf_metrics = {
-                'accuracy': round(accuracy_score(y_test, rf_pred) * 100, 2),
-                'precision': round(precision_score(y_test, rf_pred) * 100, 2),
-                'recall': round(recall_score(y_test, rf_pred) * 100, 2),
-                'f1_score': round(f1_score(y_test, rf_pred) * 100, 2),
-                'roc_auc': round(roc_auc_rf, 4)
-            }
-            
+            logistic_cm_img = getattr(ml_manager, 'logistic_confusion_matrix', None)
+            logistic_roc_img = getattr(ml_manager, 'logistic_roc_curve', None)
+            logistic_metrics = getattr(ml_manager, 'logistic_metrics', {}) or {}
+            rf_cm_img = getattr(ml_manager, 'rf_confusion_matrix', None)
+            rf_roc_img = getattr(ml_manager, 'rf_roc_curve', None)
+            rf_metrics = getattr(ml_manager, 'rf_metrics', {}) or {}
         except Exception as e:
-            print(f"Error generating evaluation metrics: {e}")
+            print(f"Error fetching precomputed evaluation artifacts: {e}")
             logistic_cm_img = None
             logistic_roc_img = None
             rf_cm_img = None

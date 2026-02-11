@@ -8,6 +8,13 @@ import numpy as np
 import joblib
 from pathlib import Path
 from django.conf import settings
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
+import io
+import base64
 
 
 class MLModelManager:
@@ -40,6 +47,126 @@ class MLModelManager:
             self.models_loaded = True
             print("✅ ML models loaded successfully")
             
+            # Try to load test data and precompute evaluation artifacts to avoid
+            # heavy per-request work in views (plots, metrics)
+            try:
+                X_test = joblib.load(models_dir / 'X_test.pkl')
+                y_test = joblib.load(models_dir / 'y_test.pkl')
+
+                # Logistic
+                log_pred = self.log_model.predict(X_test)
+                log_pred_proba = self.log_model.predict_proba(X_test)[:, 1]
+
+                # Confusion Matrix - Logistic
+                fig, ax = plt.subplots(figsize=(6, 5))
+                cm_log = confusion_matrix(y_test, log_pred)
+                sns.heatmap(cm_log, annot=True, fmt='d', cmap='Blues', ax=ax,
+                           xticklabels=['No Disease', 'Heart Disease'],
+                           yticklabels=['No Disease', 'Heart Disease'])
+                ax.set_xlabel('Predicted', fontsize=12)
+                ax.set_ylabel('Actual', fontsize=12)
+                ax.set_title('Confusion Matrix - Logistic Regression', fontsize=14)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+                buf.seek(0)
+                self.logistic_confusion_matrix = base64.b64encode(buf.read()).decode('utf-8')
+                buf.close()
+                plt.close()
+
+                # ROC - Logistic
+                fig, ax = plt.subplots(figsize=(6, 5))
+                fpr, tpr, _ = roc_curve(y_test, log_pred_proba)
+                roc_auc_log = roc_auc_score(y_test, log_pred_proba)
+                ax.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc_log:.3f})')
+                ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random Classifier')
+                ax.set_xlim([0.0, 1.0])
+                ax.set_ylim([0.0, 1.05])
+                ax.set_xlabel('False Positive Rate', fontsize=12)
+                ax.set_ylabel('True Positive Rate', fontsize=12)
+                ax.set_title('ROC Curve - Logistic Regression', fontsize=14)
+                ax.legend(loc="lower right")
+                ax.grid(alpha=0.3)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+                buf.seek(0)
+                self.logistic_roc_curve = base64.b64encode(buf.read()).decode('utf-8')
+                buf.close()
+                plt.close()
+
+                # Logistic metrics
+                self.logistic_metrics = {
+                    'accuracy': round(accuracy_score(y_test, log_pred) * 100, 2),
+                    'precision': round(precision_score(y_test, log_pred) * 100, 2),
+                    'recall': round(recall_score(y_test, log_pred) * 100, 2),
+                    'f1_score': round(f1_score(y_test, log_pred) * 100, 2),
+                    'roc_auc': round(roc_auc_log, 4)
+                }
+
+                # Random Forest
+                rf_pred = self.rf_model.predict(X_test)
+                rf_pred_proba = self.rf_model.predict_proba(X_test)[:, 1]
+
+                # Confusion Matrix - RF
+                fig, ax = plt.subplots(figsize=(6, 5))
+                cm_rf = confusion_matrix(y_test, rf_pred)
+                sns.heatmap(cm_rf, annot=True, fmt='d', cmap='Greens', ax=ax,
+                           xticklabels=['No Disease', 'Heart Disease'],
+                           yticklabels=['No Disease', 'Heart Disease'])
+                ax.set_xlabel('Predicted', fontsize=12)
+                ax.set_ylabel('Actual', fontsize=12)
+                ax.set_title('Confusion Matrix - Random Forest', fontsize=14)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+                buf.seek(0)
+                self.rf_confusion_matrix = base64.b64encode(buf.read()).decode('utf-8')
+                buf.close()
+                plt.close()
+
+                # ROC - RF
+                fig, ax = plt.subplots(figsize=(6, 5))
+                fpr, tpr, _ = roc_curve(y_test, rf_pred_proba)
+                roc_auc_rf = roc_auc_score(y_test, rf_pred_proba)
+                ax.plot(fpr, tpr, color='green', lw=2, label=f'ROC curve (AUC = {roc_auc_rf:.3f})')
+                ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random Classifier')
+                ax.set_xlim([0.0, 1.0])
+                ax.set_ylim([0.0, 1.05])
+                ax.set_xlabel('False Positive Rate', fontsize=12)
+                ax.set_ylabel('True Positive Rate', fontsize=12)
+                ax.set_title('ROC Curve - Random Forest', fontsize=14)
+                ax.legend(loc="lower right")
+                ax.grid(alpha=0.3)
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+                buf.seek(0)
+                self.rf_roc_curve = base64.b64encode(buf.read()).decode('utf-8')
+                buf.close()
+                plt.close()
+
+                # RF metrics
+                self.rf_metrics = {
+                    'accuracy': round(accuracy_score(y_test, rf_pred) * 100, 2),
+                    'precision': round(precision_score(y_test, rf_pred) * 100, 2),
+                    'recall': round(recall_score(y_test, rf_pred) * 100, 2),
+                    'f1_score': round(f1_score(y_test, rf_pred) * 100, 2),
+                    'roc_auc': round(roc_auc_rf, 4)
+                }
+
+            except FileNotFoundError:
+                print("⚠️ Test dataset not found; skipping evaluation precompute")
+                self.logistic_confusion_matrix = None
+                self.logistic_roc_curve = None
+                self.logistic_metrics = {}
+                self.rf_confusion_matrix = None
+                self.rf_roc_curve = None
+                self.rf_metrics = {}
+            except Exception as e:
+                print(f"⚠️ Error precomputing evaluation artifacts: {e}")
+                self.logistic_confusion_matrix = None
+                self.logistic_roc_curve = None
+                self.logistic_metrics = {}
+                self.rf_confusion_matrix = None
+                self.rf_roc_curve = None
+                self.rf_metrics = {}
         except FileNotFoundError as e:
             print(f"❌ Error loading models: {e}")
             print("Please run train_model.py first to generate model files")

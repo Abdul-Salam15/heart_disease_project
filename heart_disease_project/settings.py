@@ -7,11 +7,15 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-heart-disease-prediction-key-change-in-production'
+# SECURITY: read sensitive settings from environment when available
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-heart-disease-prediction-key-change-in-production')
 
-DEBUG = True
+# DEBUG should be False in production; set via environment variable on the host
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS should be set in the environment as a comma-separated list
+allowed = os.environ.get('ALLOWED_HOSTS', 'cardiocare.pythonanywhere.com')
+ALLOWED_HOSTS = [h.strip() for h in allowed.split(',') if h.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
