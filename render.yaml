@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: heart_disease_project
+    env: docker
+    branch: main
+    plan: free
+    buildCommand: ''
+    startCommand: ''
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        sync: false
+      - key: ALLOWED_HOSTS
+        sync: false
