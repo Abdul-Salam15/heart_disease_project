@@ -1,0 +1,151 @@
+{% extends 'prediction/base.html' %}
+
+{% block title %}Prediction History - Heart Disease Prediction{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-4">
+            <h1 class="display-4 fw-bold text-white">
+                <i class="bi bi-clock-history"></i> Prediction History
+            </h1>
+            <p class="lead text-white">View all previous predictions and their results</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-file-medical-fill text-primary" style="font-size: 2.5rem;"></i>
+                        <h3 class="mt-2">{{ total_predictions }}</h3>
+                        <p class="text-muted mb-0">Total Predictions Made</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Predictions List -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-list-ul"></i> All Predictions</h4>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Patient Info</th>
+                                    <th>Risk Probability</th>
+                                    <th>Result</th>
+                                    <th>Risk Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prediction in page_obj %}
+                                <tr>
+                                    <td><strong>#{{ prediction.id }}</strong></td>
+                                    <td>
+                                        {{ prediction.created_at|date:"M d, Y" }}<br>
+                                        <small class="text-muted">{{ prediction.created_at|time:"H:i:s" }}</small>
+                                    </td>
+                                    <td>
+                                        {{ prediction.age }}y, {{ prediction.sex }}<br>
+                                        <small class="text-muted">BP: {{ prediction.resting_bp }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 25px;">
+                                            <div class="progress-bar {% if prediction.consensus_probability >= 0.5 %}bg-danger{% else %}bg-success{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ prediction.consensus_probability|floatformat:2|slice:"2:" }}%">
+                                                {{ prediction.consensus_probability|floatformat:1|slice:"2:" }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if prediction.prediction_result == 'Heart Disease' %}
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-exclamation-triangle-fill"></i> {{ prediction.prediction_result }}
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle-fill"></i> {{ prediction.prediction_result }}
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if prediction.consensus_probability >= 0.7 %}
+                                        <span class="badge bg-danger">High Risk</span>
+                                        {% elif prediction.consensus_probability >= 0.4 %}
+                                        <span class="badge bg-warning">Moderate Risk</span>
+                                        {% else %}
+                                        <span class="badge bg-success">Low Risk</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                        <p class="mt-3">No predictions found</p>
+                                        <a href="{% url 'predict' %}" class="btn btn-primary">
+                                            Make Your First Prediction
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Prediction history pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="row mt-4">
+            <div class="col-md-6 mx-auto text-center">
+                <a href="{% url 'predict' %}" class="btn btn-primary btn-lg me-2">
+                    <i class="bi bi-plus-circle"></i> New Prediction
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-house"></i> Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

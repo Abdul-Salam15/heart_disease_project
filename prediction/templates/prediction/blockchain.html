@@ -1,0 +1,261 @@
+{% extends 'prediction/base.html' %}
+
+{% block title %}Blockchain Records - Heart Disease Prediction{% endblock %}
+
+{% block extra_css %}
+<style>
+    .block-card {
+        border-left: 4px solid #27ae60;
+        transition: all 0.3s;
+    }
+    
+    .block-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .hash-display {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+    
+    .blockchain-status {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+    
+    .blockchain-status.valid {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+    }
+    
+    .blockchain-status.invalid {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-4 fw-bold text-white">
+                <i class="bi bi-shield-lock-fill"></i> Blockchain Records
+            </h1>
+            <p class="lead text-white">Immutable and Transparent Prediction Logging</p>
+        </div>
+        
+        <!-- Blockchain Status -->
+        <div class="blockchain-status {% if chain_valid %}valid{% else %}invalid{% endif %} text-center">
+            {% if chain_valid %}
+            <h3><i class="bi bi-check-circle-fill"></i> Blockchain is Valid</h3>
+            <p class="mb-0">All {{ total_blocks }} blocks have been verified and are secure</p>
+            {% else %}
+            <h3><i class="bi bi-x-circle-fill"></i> Blockchain Invalid</h3>
+            <p class="mb-0">Warning: Blockchain integrity has been compromised</p>
+            {% endif %}
+        </div>
+        
+        <!-- Stats -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-link-45deg text-primary" style="font-size: 2.5rem;"></i>
+                        <h3 class="mt-2">{{ total_blocks }}</h3>
+                        <p class="text-muted mb-0">Total Blocks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-shield-check text-success" style="font-size: 2.5rem;"></i>
+                        <h3 class="mt-2">SHA-256</h3>
+                        <p class="text-muted mb-0">Hash Algorithm</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-lock-fill text-warning" style="font-size: 2.5rem;"></i>
+                        <h3 class="mt-2">Immutable</h3>
+                        <p class="text-muted mb-0">Data Integrity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Verify Button -->
+        <div class="text-center mb-4">
+            <button id="verifyBtn" class="btn btn-success btn-lg">
+                <i class="bi bi-shield-check"></i> Verify Blockchain Integrity
+            </button>
+        </div>
+        
+        <!-- Blockchain Records -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-list-ul"></i> Block Records</h4>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                    {% for block in page_obj %}
+                    <div class="card block-card mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="text-center">
+                                        <div style="font-size: 2rem; color: #27ae60;">
+                                            <i class="bi bi-cube-fill"></i>
+                                        </div>
+                                        <h5 class="mt-2 mb-0">Block #{{ block.index }}</h5>
+                                        <small class="text-muted">
+                                            {{ block.created_at|date:"M d, Y" }}<br>
+                                            {{ block.created_at|time:"H:i:s" }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-10">
+                                    <h6 class="text-muted mb-2">Block Hash</h6>
+                                    <div class="hash-display mb-3">{{ block.hash }}</div>
+                                    
+                                    <h6 class="text-muted mb-2">Previous Hash</h6>
+                                    <div class="hash-display mb-3">{{ block.previous_hash }}</div>
+                                    
+                                    {% if block.prediction %}
+                                    <div class="alert alert-info mb-0">
+                                        <h6><i class="bi bi-file-medical"></i> Associated Prediction</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <small>
+                                                    <strong>ID:</strong> #{{ block.prediction.id }}<br>
+                                                    <strong>Patient:</strong> {{ block.prediction.age }}y, {{ block.prediction.sex }}<br>
+                                                    <strong>Result:</strong> {{ block.prediction.prediction_result }}
+                                                </small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small>
+                                                    <strong>Risk Probability:</strong> {{ block.prediction.consensus_probability|floatformat:1|slice:"2:" }}%<br>
+                                                    <strong>Timestamp:</strong> {{ block.prediction.created_at|date:"M d, Y H:i:s" }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <!-- Expandable Data Section -->
+                                    <div class="mt-2">
+                                        <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#blockData{{ block.index }}">
+                                            <i class="bi bi-code-square"></i> View Raw Data
+                                        </button>
+                                        <div class="collapse mt-2" id="blockData{{ block.index }}">
+                                            <pre class="hash-display mb-0">{{ block.data }}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                        <p class="mt-3">No blockchain records found</p>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Blockchain pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Information Card -->
+        <div class="card mt-4 bg-light">
+            <div class="card-body">
+                <h5><i class="bi bi-info-circle-fill text-info"></i> About Blockchain Security</h5>
+                <p class="mb-0">
+                    Each prediction is recorded as a block in our blockchain. Every block contains a cryptographic 
+                    hash of the previous block, creating an immutable chain of records. This ensures that once a 
+                    prediction is logged, it cannot be altered or deleted, providing complete transparency and 
+                    data integrity for all medical predictions.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Back Button -->
+        <div class="text-center mt-4">
+            <a href="{% url 'home' %}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-house-fill"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Verify blockchain integrity
+    document.getElementById('verifyBtn').addEventListener('click', function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+        
+        fetch('{% url "blockchain_verify" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.valid) {
+                    alert('✅ Blockchain is Valid!\n\nTotal Blocks: ' + data.total_blocks + '\n' + data.message);
+                } else {
+                    alert('⚠️ Blockchain Invalid!\n\n' + data.message);
+                }
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-shield-check"></i> Verify Blockchain Integrity';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error verifying blockchain');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-shield-check"></i> Verify Blockchain Integrity';
+            });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends 'prediction/base.html' %}
+
+{% block title %}Prediction Result - Heart Disease Prediction{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-card {
+        border-left: 5px solid;
+        transition: all 0.3s;
+    }
+    
+    .result-card.high-risk {
+        border-color: #e74c3c;
+        background: linear-gradient(to right, rgba(231, 76, 60, 0.05), transparent);
+    }
+    
+    .result-card.moderate-risk {
+        border-color: #f39c12;
+        background: linear-gradient(to right, rgba(243, 156, 18, 0.05), transparent);
+    }
+    
+    .result-card.low-risk {
+        border-color: #27ae60;
+        background: linear-gradient(to right, rgba(39, 174, 96, 0.05), transparent);
+    }
+    
+    .probability-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0 auto;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Main Result Card -->
+        <div class="card result-card {% if prediction.consensus_probability >= 0.7 %}high-risk{% elif prediction.consensus_probability >= 0.4 %}moderate-risk{% else %}low-risk{% endif %} mb-4">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="bi bi-file-medical-fill"></i> Prediction Result</h3>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4 text-center mb-4 mb-md-0">
+                        {% if prediction.consensus_probability >= 0.5 %}
+                        <div class="probability-circle bg-danger text-white">
+                            {{ prediction.consensus_probability|floatformat:1|slice:"2:" }}%
+                        </div>
+                        <h4 class="mt-3 text-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i> HIGH RISK
+                        </h4>
+                        {% else %}
+                        <div class="probability-circle bg-success text-white">
+                            {{ prediction.consensus_probability|floatformat:1|slice:"2:" }}%
+                        </div>
+                        <h4 class="mt-3 text-success">
+                            <i class="bi bi-check-circle-fill"></i> LOW RISK
+                        </h4>
+                        {% endif %}
+                        <p class="text-muted">{{ prediction.prediction_result }}</p>
+                    </div>
+                    <div class="col-md-8">
+                        <h5 class="mb-3">Consensus Prediction</h5>
+                        <p class="lead">
+                            Based on the patient data provided, our AI models have assessed the risk of heart disease.
+                        </p>
+                        
+                        {% if prediction.consensus_probability >= 0.5 %}
+                        <div class="alert alert-danger">
+                            <h6><i class="bi bi-exclamation-triangle-fill"></i> Recommendation</h6>
+                            <p class="mb-0">
+                                <strong>Immediate medical consultation recommended.</strong> The patient shows indicators 
+                                suggesting a higher risk of heart disease. Please consult a cardiologist for comprehensive 
+                                evaluation and appropriate diagnostic tests.
+                            </p>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-success">
+                            <h6><i class="bi bi-check-circle-fill"></i> Recommendation</h6>
+                            <p class="mb-0">
+                                <strong>Maintain a healthy lifestyle.</strong> While the current assessment shows lower risk, 
+                                regular check-ups and maintaining healthy habits (diet, exercise, stress management) 
+                                are important for long-term cardiovascular health.
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Model Predictions -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-graph-up text-primary"></i> Logistic Regression
+                        </h5>
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar {% if prediction.logistic_probability >= 0.5 %}bg-danger{% else %}bg-success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ prediction.logistic_probability|floatformat:2|slice:"2:" }}%">
+                                {{ prediction.logistic_probability|floatformat:1|slice:"2:" }}%
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">
+                            Risk Probability: <strong>{{ prediction.logistic_probability|floatformat:2|slice:"2:" }}%</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-diagram-3 text-success"></i> Random Forest
+                        </h5>
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar {% if prediction.rf_probability >= 0.5 %}bg-danger{% else %}bg-success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ prediction.rf_probability|floatformat:2|slice:"2:" }}%">
+                                {{ prediction.rf_probability|floatformat:1|slice:"2:" }}%
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">
+                            Risk Probability: <strong>{{ prediction.rf_probability|floatformat:2|slice:"2:" }}%</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patient Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-person-badge-fill"></i> Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>Age:</th>
+                                <td>{{ prediction.age }} years</td>
+                            </tr>
+                            <tr>
+                                <th>Sex:</th>
+                                <td>{{ prediction.sex }}</td>
+                            </tr>
+                            <tr>
+                                <th>Chest Pain Type:</th>
+                                <td>{{ prediction.chest_pain_type }}</td>
+                            </tr>
+                            <tr>
+                                <th>Resting BP:</th>
+                                <td>{{ prediction.resting_bp }} mm Hg</td>
+                            </tr>
+                            <tr>
+                                <th>Cholesterol:</th>
+                                <td>{{ prediction.cholesterol }} mg/dL</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>Fasting Blood Sugar:</th>
+                                <td>{% if prediction.fasting_bs %}> 120 mg/dL{% else %}<= 120 mg/dL{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <th>Resting ECG:</th>
+                                <td>{{ prediction.resting_ecg }}</td>
+                            </tr>
+                            <tr>
+                                <th>Max Heart Rate:</th>
+                                <td>{{ prediction.max_hr }} bpm</td>
+                            </tr>
+                            <tr>
+                                <th>Exercise Angina:</th>
+                                <td>{{ prediction.exercise_angina }}</td>
+                            </tr>
+                            <tr>
+                                <th>ST Depression:</th>
+                                <td>{{ prediction.oldpeak }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feature Importance (collapsed by default) -->
+        <div class="accordion mb-4" id="featureImportance">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseImportance">
+                        <i class="bi bi-bar-chart-fill me-2"></i> Feature Importance Analysis
+                    </button>
+                </h2>
+                <div id="collapseImportance" class="accordion-collapse collapse" data-bs-parent="#featureImportance">
+                    <div class="accordion-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Logistic Regression - Top Factors</h6>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Feature</th>
+                                            <th>Importance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in log_importance|slice:":5" %}
+                                        <tr>
+                                            <td>{{ item.Feature }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-primary" 
+                                                         style="width: {{ item.Importance|floatformat:2 }}%">
+                                                        {{ item.Importance|floatformat:3 }}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Random Forest - Top Factors</h6>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Feature</th>
+                                            <th>Importance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in rf_importance|slice:":5" %}
+                                        <tr>
+                                            <td>{{ item.Feature }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         style="width: {{ item.Importance|floatformat:2 }}%">
+                                                        {{ item.Importance|floatformat:3 }}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <a href="{% url 'predict' %}" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-arrow-repeat"></i> New Prediction
+                </a>
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="{% url 'blockchain' %}" class="btn btn-success btn-lg w-100">
+                    <i class="bi bi-shield-lock-fill"></i> View Blockchain Record
+                </a>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-house-fill"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

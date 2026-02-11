@@ -1,0 +1,207 @@
+{% extends 'prediction/base.html' %}
+
+{% block title %}Predict - Heart Disease Prediction{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="bi bi-calculator-fill"></i> Heart Disease Prediction</h3>
+                <p class="mb-0 mt-2 text-white-50">Enter patient information below to get a risk assessment</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" id="predictionForm">
+                    {% csrf_token %}
+                    
+                    <!-- Demographics Section -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-person-fill text-primary"></i> Demographics
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.age.id_for_label }}" class="form-label">
+                                    {{ form.age.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.age }}
+                                {% if form.age.help_text %}
+                                <div class="form-text">{{ form.age.help_text }}</div>
+                                {% endif %}
+                                {% if form.age.errors %}
+                                <div class="text-danger">{{ form.age.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sex.id_for_label }}" class="form-label">
+                                    {{ form.sex.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.sex }}
+                                {% if form.sex.help_text %}
+                                <div class="form-text">{{ form.sex.help_text }}</div>
+                                {% endif %}
+                                {% if form.sex.errors %}
+                                <div class="text-danger">{{ form.sex.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Clinical Measurements Section -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-heart-pulse text-danger"></i> Clinical Measurements
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.resting_bp.id_for_label }}" class="form-label">
+                                    {{ form.resting_bp.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.resting_bp }}
+                                {% if form.resting_bp.help_text %}
+                                <div class="form-text">{{ form.resting_bp.help_text }}</div>
+                                {% endif %}
+                                {% if form.resting_bp.errors %}
+                                <div class="text-danger">{{ form.resting_bp.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.cholesterol.id_for_label }}" class="form-label">
+                                    {{ form.cholesterol.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.cholesterol }}
+                                {% if form.cholesterol.help_text %}
+                                <div class="form-text">{{ form.cholesterol.help_text }}</div>
+                                {% endif %}
+                                {% if form.cholesterol.errors %}
+                                <div class="text-danger">{{ form.cholesterol.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fasting_bs.id_for_label }}" class="form-label">
+                                    {{ form.fasting_bs.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.fasting_bs }}
+                                {% if form.fasting_bs.help_text %}
+                                <div class="form-text">{{ form.fasting_bs.help_text }}</div>
+                                {% endif %}
+                                {% if form.fasting_bs.errors %}
+                                <div class="text-danger">{{ form.fasting_bs.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.max_hr.id_for_label }}" class="form-label">
+                                    {{ form.max_hr.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.max_hr }}
+                                {% if form.max_hr.help_text %}
+                                <div class="form-text">{{ form.max_hr.help_text }}</div>
+                                {% endif %}
+                                {% if form.max_hr.errors %}
+                                <div class="text-danger">{{ form.max_hr.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.oldpeak.id_for_label }}" class="form-label">
+                                    {{ form.oldpeak.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.oldpeak }}
+                                {% if form.oldpeak.help_text %}
+                                <div class="form-text">{{ form.oldpeak.help_text }}</div>
+                                {% endif %}
+                                {% if form.oldpeak.errors %}
+                                <div class="text-danger">{{ form.oldpeak.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Symptoms & Test Results Section -->
+                    <div class="mb-4">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-clipboard2-pulse text-success"></i> Symptoms & Test Results
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.chest_pain_type.id_for_label }}" class="form-label">
+                                    {{ form.chest_pain_type.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.chest_pain_type }}
+                                {% if form.chest_pain_type.help_text %}
+                                <div class="form-text">{{ form.chest_pain_type.help_text }}</div>
+                                {% endif %}
+                                {% if form.chest_pain_type.errors %}
+                                <div class="text-danger">{{ form.chest_pain_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.resting_ecg.id_for_label }}" class="form-label">
+                                    {{ form.resting_ecg.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.resting_ecg }}
+                                {% if form.resting_ecg.help_text %}
+                                <div class="form-text">{{ form.resting_ecg.help_text }}</div>
+                                {% endif %}
+                                {% if form.resting_ecg.errors %}
+                                <div class="text-danger">{{ form.resting_ecg.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.exercise_angina.id_for_label }}" class="form-label">
+                                    {{ form.exercise_angina.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.exercise_angina }}
+                                {% if form.exercise_angina.help_text %}
+                                <div class="form-text">{{ form.exercise_angina.help_text }}</div>
+                                {% endif %}
+                                {% if form.exercise_angina.errors %}
+                                <div class="text-danger">{{ form.exercise_angina.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cpu-fill"></i> Predict Heart Disease Risk
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Information Card -->
+        <div class="card mt-4 bg-light">
+            <div class="card-body">
+                <h6 class="text-muted">
+                    <i class="bi bi-info-circle-fill"></i> How it Works
+                </h6>
+                <ul class="mb-0 text-muted small">
+                    <li>Fill in all required patient information fields</li>
+                    <li>Our AI models (Logistic Regression & Random Forest) will analyze the data</li>
+                    <li>You'll receive a consensus prediction with risk probability</li>
+                    <li>The prediction will be securely logged to the blockchain</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    document.getElementById('predictionForm').addEventListener('submit', function(e) {
+        const form = this;
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+</script>
+{% endblock %}

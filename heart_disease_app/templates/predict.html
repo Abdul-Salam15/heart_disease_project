@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Predict - Heart Disease Prediction System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-stethoscope"></i> Patient Risk Assessment</h1>
+    <p>Enter patient information to predict heart disease risk</p>
+</div>
+
+<div class="predict-container">
+    <form method="post" class="predict-form" id="predictForm">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="fas fa-user"></i> Demographics
+            </h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="age">Age <span class="required">*</span></label>
+                    <input type="number" id="age" name="age" min="1" max="120" value="50" required>
+                    <span class="form-help">Patient's age in years</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sex">Sex <span class="required">*</span></label>
+                    <select id="sex" name="sex" required>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="fas fa-heartbeat"></i> Vital Signs
+            </h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="resting_bp">Resting Blood Pressure <span class="required">*</span></label>
+                    <input type="number" id="resting_bp" name="resting_bp" min="80" max="250" value="120" required>
+                    <span class="form-help">mm Hg (80-250)</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="max_hr">Maximum Heart Rate <span class="required">*</span></label>
+                    <input type="number" id="max_hr" name="max_hr" min="60" max="220" value="150" required>
+                    <span class="form-help">bpm (60-220)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="fas fa-vial"></i> Laboratory Tests
+            </h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="cholesterol">Cholesterol <span class="required">*</span></label>
+                    <input type="number" id="cholesterol" name="cholesterol" min="100" max="600" value="200" required>
+                    <span class="form-help">mg/dL (100-600)</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fasting_bs">Fasting Blood Sugar > 120 mg/dL <span class="required">*</span></label>
+                    <select id="fasting_bs" name="fasting_bs" required>
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="oldpeak">ST Depression (Oldpeak) <span class="required">*</span></label>
+                    <input type="number" id="oldpeak" name="oldpeak" min="0" max="10" step="0.1" value="1.0" required>
+                    <span class="form-help">Depression induced by exercise (0-10)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="fas fa-notes-medical"></i> Clinical Findings
+            </h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="chest_pain_type">Chest Pain Type <span class="required">*</span></label>
+                    <select id="chest_pain_type" name="chest_pain_type" required>
+                        <option value="ATA">ATA - Atypical Angina</option>
+                        <option value="NAP">NAP - Non-Anginal Pain</option>
+                        <option value="ASY">ASY - Asymptomatic</option>
+                        <option value="TA">TA - Typical Angina</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="resting_ecg">Resting ECG <span class="required">*</span></label>
+                    <select id="resting_ecg" name="resting_ecg" required>
+                        <option value="Normal">Normal</option>
+                        <option value="ST">ST - ST-T Wave Abnormality</option>
+                        <option value="LVH">LVH - Left Ventricular Hypertrophy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="exercise_angina">Exercise-Induced Angina <span class="required">*</span></label>
+                    <select id="exercise_angina" name="exercise_angina" required>
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="reset" class="btn btn-secondary">
+                <i class="fas fa-redo"></i> Reset Form
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Predict Risk
+            </button>
+        </div>
+    </form>
+
+    <div class="info-panel">
+        <div class="info-card">
+            <i class="fas fa-info-circle"></i>
+            <h4>About This Assessment</h4>
+            <p>This AI-powered system analyzes 10 clinical parameters to predict heart disease risk. The prediction is made by two complementary machine learning models for accuracy.</p>
+        </div>
+        
+        <div class="info-card">
+            <i class="fas fa-shield-alt"></i>
+            <h4>Data Security</h4>
+            <p>All predictions are securely logged to an immutable blockchain, ensuring data integrity and creating a permanent audit trail.</p>
+        </div>
+        
+        <div class="info-card warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h4>Medical Disclaimer</h4>
+            <p>This tool is for screening purposes only. Always consult a qualified healthcare provider for diagnosis and treatment.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

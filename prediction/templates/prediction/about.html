@@ -1,0 +1,225 @@
+{% extends 'prediction/base.html' %}
+
+{% block title %}About - Heart Disease Prediction{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="display-3 fw-bold text-white">
+                <i class="bi bi-info-circle-fill"></i> About HeartCare AI
+            </h1>
+            <p class="lead text-white">Advanced AI-Powered Heart Disease Prediction System</p>
+        </div>
+        
+        <!-- Overview -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-bookmark-star"></i> Overview</h4>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    HeartCare AI is a cutting-edge machine learning system designed to predict the risk of 
+                    heart disease based on patient clinical data. Our system combines multiple AI models with 
+                    blockchain security to provide accurate, transparent, and secure medical predictions.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Features -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-stars"></i> Key Features</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h5><i class="bi bi-cpu text-primary"></i> Dual AI Models</h5>
+                        <p>
+                            We use both Logistic Regression and Random Forest algorithms to provide 
+                            comprehensive risk assessment with consensus predictions.
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h5><i class="bi bi-shield-lock text-success"></i> Blockchain Security</h5>
+                        <p>
+                            Every prediction is logged to an immutable blockchain, ensuring data integrity, 
+                            transparency, and complete audit trail.
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h5><i class="bi bi-bar-chart text-info"></i> Feature Importance</h5>
+                        <p>
+                            Understand which clinical factors contribute most to the prediction, 
+                            helping clinicians make informed decisions.
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h5><i class="bi bi-graph-up text-warning"></i> High Accuracy</h5>
+                        <p>
+                            Our models achieve high accuracy with comprehensive evaluation metrics 
+                            including precision, recall, and ROC-AUC scores.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How It Works -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-gear"></i> How It Works</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="mb-3">
+                            <i class="bi bi-clipboard-data text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5>1. Data Input</h5>
+                        <p class="text-muted small">
+                            Enter patient clinical measurements and symptoms
+                        </p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="mb-3">
+                            <i class="bi bi-cpu-fill text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5>2. AI Analysis</h5>
+                        <p class="text-muted small">
+                            Dual models analyze data and generate predictions
+                        </p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="mb-3">
+                            <i class="bi bi-clipboard-check text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5>3. Risk Assessment</h5>
+                        <p class="text-muted small">
+                            Receive consensus prediction with probability scores
+                        </p>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <div class="mb-3">
+                            <i class="bi bi-shield-check text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5>4. Blockchain Log</h5>
+                        <p class="text-muted small">
+                            Prediction securely recorded to blockchain
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technology Stack -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-code-square"></i> Technology Stack</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary"><i class="bi bi-robot"></i> Machine Learning</h6>
+                        <ul>
+                            <li>Logistic Regression (Scikit-learn)</li>
+                            <li>Random Forest Classifier (200 trees)</li>
+                            <li>Feature scaling with StandardScaler</li>
+                            <li>Cross-validation for robust evaluation</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="bi bi-link-45deg"></i> Blockchain</h6>
+                        <ul>
+                            <li>SHA-256 cryptographic hashing</li>
+                            <li>Immutable record chain</li>
+                            <li>Database-backed persistence</li>
+                            <li>Integrity verification system</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <h6 class="text-info"><i class="bi bi-window"></i> Web Framework</h6>
+                        <ul>
+                            <li>Django 4.2 (Python)</li>
+                            <li>Bootstrap 5 (Responsive UI)</li>
+                            <li>SQLite Database</li>
+                            <li>RESTful Architecture</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <h6 class="text-warning"><i class="bi bi-file-earmark-code"></i> Data Science</h6>
+                        <ul>
+                            <li>Pandas (Data processing)</li>
+                            <li>NumPy (Numerical computing)</li>
+                            <li>Matplotlib & Seaborn (Visualization)</li>
+                            <li>Joblib (Model persistence)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Clinical Features -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-heart-pulse"></i> Clinical Features Used</h4>
+            </div>
+            <div class="card-body">
+                <p>Our model analyzes the following patient parameters:</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Numerical Features:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Age</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Resting Blood Pressure</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Cholesterol Level</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Maximum Heart Rate</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> ST Depression (Oldpeak)</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Fasting Blood Sugar</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Categorical Features:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Sex</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Chest Pain Type</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Resting ECG Results</li>
+                            <li><i class="bi bi-check-circle-fill text-success"></i> Exercise-Induced Angina</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Medical Disclaimer -->
+        <div class="card border-warning">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Important Medical Disclaimer
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">
+                    <strong>This system is a predictive tool for educational and research purposes only.</strong> 
+                    It is NOT a substitute for professional medical diagnosis, advice, or treatment. 
+                    The predictions provided by this system should not be used as the sole basis for 
+                    medical decisions. Always seek the advice of qualified healthcare providers with any 
+                    questions regarding medical conditions. Never disregard professional medical advice 
+                    or delay in seeking it because of information provided by this system.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="text-center mt-5 mb-4">
+            <h3 class="text-white mb-3">Ready to Try Our System?</h3>
+            <a href="{% url 'predict' %}" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-calculator"></i> Make a Prediction
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-house"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

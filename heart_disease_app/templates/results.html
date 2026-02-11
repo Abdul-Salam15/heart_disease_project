@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Results - Heart Disease Prediction System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-chart-bar"></i> Prediction Results</h1>
+    <p>Analysis ID: #{{ prediction.id }} | {{ prediction.created_at|date:"F d, Y H:i" }}</p>
+</div>
+
+<div class="results-container">
+    <!-- Risk Assessment -->
+    <div class="result-hero {% if prediction.risk_level == 'High' %}risk-high{% else %}risk-low{% endif %}">
+        <div class="risk-icon">
+            {% if prediction.risk_level == 'High' %}
+            <i class="fas fa-exclamation-triangle"></i>
+            {% else %}
+            <i class="fas fa-check-circle"></i>
+            {% endif %}
+        </div>
+        <div class="risk-content">
+            <h2>{{ prediction.risk_level }} Risk of Heart Disease</h2>
+            <p class="risk-percentage">{{ prediction.consensus_probability|floatformat:2 }}%</p>
+            <p class="risk-description">
+                {% if prediction.risk_level == 'High' %}
+                This patient shows indicators suggesting elevated risk for heart disease. Immediate consultation with a cardiologist is recommended.
+                {% else %}
+                This patient shows indicators suggesting low risk for heart disease. Continue routine health monitoring and maintain a healthy lifestyle.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Model Predictions -->
+    <div class="models-grid">
+        <div class="model-card">
+            <div class="model-header">
+                <i class="fas fa-project-diagram"></i>
+                <h3>Logistic Regression</h3>
+            </div>
+            <div class="model-body">
+                <div class="probability-circle">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#e0e0e0" stroke-width="10"/>
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#3498db" stroke-width="10" 
+                            stroke-dasharray="283" stroke-dashoffset="{% widthratio prediction.logistic_probability 100 283 %}"
+                            transform="rotate(-90 50 50)"/>
+                    </svg>
+                    <div class="probability-text">{{ prediction.logistic_probability|floatformat:2 }}%</div>
+                </div>
+                <p class="model-description">Linear model analyzing feature coefficients</p>
+            </div>
+        </div>
+
+        <div class="model-card">
+            <div class="model-header">
+                <i class="fas fa-tree"></i>
+                <h3>Random Forest</h3>
+            </div>
+            <div class="model-body">
+                <div class="probability-circle">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#e0e0e0" stroke-width="10"/>
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#2ecc71" stroke-width="10" 
+                            stroke-dasharray="283" stroke-dashoffset="{% widthratio prediction.rf_probability 100 283 %}"
+                            transform="rotate(-90 50 50)"/>
+                    </svg>
+                    <div class="probability-text">{{ prediction.rf_probability|floatformat:2 }}%</div>
+                </div>
+                <p class="model-description">Ensemble model with decision trees</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Data Summary -->
+    <div class="patient-summary">
+        <h3><i class="fas fa-user-md"></i> Patient Data Summary</h3>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span class="summary-label">Age</span>
+                <span class="summary-value">{{ prediction.age }} years</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Sex</span>
+                <span class="summary-value">{{ prediction.sex }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Resting BP</span>
+                <span class="summary-value">{{ prediction.resting_bp }} mm Hg</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Cholesterol</span>
+                <span class="summary-value">{{ prediction.cholesterol }} mg/dL</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Max Heart Rate</span>
+                <span class="summary-value">{{ prediction.max_hr }} bpm</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Chest Pain</span>
+                <span class="summary-value">{{ prediction.chest_pain_type }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Resting ECG</span>
+                <span class="summary-value">{{ prediction.resting_ecg }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Exercise Angina</span>
+                <span class="summary-value">{% if prediction.exercise_angina %}Yes{% else %}No{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blockchain Info (Summary Only) -->
+    <div class="blockchain-summary">
+        <h3><i class="fas fa-cube"></i> Blockchain Record Created</h3>
+        <div class="blockchain-info-grid">
+            <div class="blockchain-info-item">
+                <i class="fas fa-hashtag"></i>
+                <div>
+                    <p class="blockchain-label">Block Index</p>
+                    <p class="blockchain-value">{{ blockchain.block_index }}</p>
+                </div>
+            </div>
+            <div class="blockchain-info-item">
+                <i class="fas fa-clock"></i>
+                <div>
+                    <p class="blockchain-label">Timestamp</p>
+                    <p class="blockchain-value">{{ blockchain.created_at|date:"M d, Y H:i:s" }}</p>
+                </div>
+            </div>
+            <div class="blockchain-info-item">
+                <i class="fas fa-fingerprint"></i>
+                <div>
+                    <p class="blockchain-label">Block Hash</p>
+                    <p class="blockchain-value hash-text">{{ blockchain.block_hash|slice:":16" }}...</p>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'blockchain' %}" class="btn btn-outline">
+            <i class="fas fa-link"></i> View Full Blockchain Records
+        </a>
+    </div>
+
+    <!-- Model Performance Evaluation -->
+    <div class="model-evaluation">
+        <h3><i class="fas fa-chart-bar"></i> Model Performance Evaluation</h3>
+        
+        <div class="evaluation-tabs">
+            <button class="tab-button active" onclick="switchTab('logistic')">
+                <i class="fas fa-project-diagram"></i> Logistic Regression
+            </button>
+            <button class="tab-button" onclick="switchTab('random-forest')">
+                <i class="fas fa-tree"></i> Random Forest
+            </button>
+        </div>
+
+        <!-- Logistic Regression Tab -->
+        <div id="logistic-tab" class="tab-content active">
+            <div class="metrics-grid">
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <h4>Confusion Matrix</h4>
+                        <img src="data:image/png;base64,{{ logistic_confusion_matrix }}" alt="Confusion Matrix">
+                    </div>
+                    <div class="chart-container">
+                        <h4>ROC Curve</h4>
+                        <img src="data:image/png;base64,{{ logistic_roc_curve }}" alt="ROC Curve">
+                    </div>
+                </div>
+                
+                <div class="metrics-summary">
+                    <div class="metric-card">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value">{{ logistic_metrics.accuracy }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Precision</span>
+                        <span class="metric-value">{{ logistic_metrics.precision }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Recall</span>
+                        <span class="metric-value">{{ logistic_metrics.recall }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">F1 Score</span>
+                        <span class="metric-value">{{ logistic_metrics.f1_score }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">ROC-AUC</span>
+                        <span class="metric-value">{{ logistic_metrics.roc_auc }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Random Forest Tab -->
+        <div id="random-forest-tab" class="tab-content">
+            <div class="metrics-grid">
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <h4>Confusion Matrix</h4>
+                        <img src="data:image/png;base64,{{ rf_confusion_matrix }}" alt="Confusion Matrix">
+                    </div>
+                    <div class="chart-container">
+                        <h4>ROC Curve</h4>
+                        <img src="data:image/png;base64,{{ rf_roc_curve }}" alt="ROC Curve">
+                    </div>
+                </div>
+                
+                <div class="metrics-summary">
+                    <div class="metric-card">
+                        <span class="metric-label">Accuracy</span>
+                        <span class="metric-value">{{ rf_metrics.accuracy }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Precision</span>
+                        <span class="metric-value">{{ rf_metrics.precision }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Recall</span>
+                        <span class="metric-value">{{ rf_metrics.recall }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">F1 Score</span>
+                        <span class="metric-value">{{ rf_metrics.f1_score }}%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">ROC-AUC</span>
+                        <span class="metric-value">{{ rf_metrics.roc_auc }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="result-actions">
+        <a href="{% url 'predict' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Prediction
+        </a>
+        <a href="{% url 'history' %}" class="btn btn-secondary">
+            <i class="fas fa-history"></i> View History
+        </a>
+        <button onclick="window.print()" class="btn btn-outline">
+            <i class="fas fa-print"></i> Print Results
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.add('active');
+    
+    // Add active class to clicked button
+    event.target.closest('.tab-button').classList.add('active');
+}
+</script>
+{% endblock %}

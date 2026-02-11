@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block title %}Blockchain - Heart Disease Prediction System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-cube"></i> Blockchain Records</h1>
+    <p>Immutable ledger of all prediction records | Total Blocks: {{ total_blocks }}</p>
+</div>
+
+<div class="blockchain-container">
+    {% if blocks %}
+    <div class="blockchain-stats">
+        <div class="stat-box">
+            <i class="fas fa-cubes"></i>
+            <div>
+                <h3>{{ total_blocks }}</h3>
+                <p>Total Blocks</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <h3>100%</h3>
+                <p>Chain Integrity</p>
+            </div>
+        </div>
+        <div class="stat-box">
+            <i class="fas fa-shield-alt"></i>
+            <div>
+                <h3>SHA-256</h3>
+                <p>Hash Algorithm</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="blockchain-chain">
+        {% for block in blocks %}
+        <div class="block-card collapsed {% if forloop.first %}genesis-block{% endif %}">
+            <div class="block-header">
+                <div class="block-number">
+                    <i class="fas fa-cube"></i>
+                    Block #{{ block.block_index }}
+                </div>
+                <div class="block-date">
+                    {{ block.created_at|date:"M d, Y H:i:s" }}
+                </div>
+                <button class="block-toggle" aria-expanded="false" title="Expand block">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+
+            <div class="block-body">
+                <div class="block-field">
+                    <label><i class="fas fa-fingerprint"></i> Block Hash</label>
+                    <div class="hash-value">{{ block.block_hash }}</div>
+                </div>
+
+                <div class="block-field">
+                    <label><i class="fas fa-link"></i> Previous Hash</label>
+                    <div class="hash-value">{{ block.previous_hash }}</div>
+                </div>
+
+                <div class="block-field">
+                    <label><i class="fas fa-clock"></i> Timestamp</label>
+                    <div class="field-value">{{ block.timestamp }}</div>
+                </div>
+
+                <div class="block-field">
+                    <label><i class="fas fa-database"></i> Prediction Data</label>
+                    <div class="data-preview">
+                        <pre>{{ block.data }}</pre>
+                    </div>
+                </div>
+
+                {% if block.prediction %}
+                <div class="block-prediction-link">
+                    <a href="{% url 'results' block.prediction.id %}" class="btn btn-sm btn-outline">
+                        <i class="fas fa-eye"></i> View Prediction Details
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if not forloop.last %}
+            <div class="block-connector">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-cube"></i>
+        <h3>No Blockchain Records Yet</h3>
+        <p>Make your first prediction to create the genesis block</p>
+        <a href="{% url 'predict' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create First Prediction
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="blockchain-info">
+    <h3><i class="fas fa-info-circle"></i> About Blockchain Security</h3>
+    <div class="info-grid">
+        <div class="info-item">
+            <i class="fas fa-lock"></i>
+            <h4>Immutability</h4>
+            <p>Each block is cryptographically linked to the previous block, making the chain tamper-proof</p>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-sync"></i>
+            <h4>Transparency</h4>
+            <p>All prediction records are permanently stored and can be audited at any time</p>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-shield-alt"></i>
+            <h4>Integrity</h4>
+            <p>SHA-256 hashing ensures data integrity and prevents unauthorized modifications</p>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-history"></i>
+            <h4>Traceability</h4>
+            <p>Complete audit trail of all predictions with timestamp verification</p>
+        </div>
+    </div>
+</div>
+<div class="blockchain-info">
+    <h3><i class="fas fa-info-circle"></i> About Blockchain Security</h3>
+    <div class="info-grid">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.block-card .block-header').forEach(header => {
+        const card = header.closest('.block-card');
+        const toggle = header.querySelector('.block-toggle');
+
+        function setIcon(expanded) {
+            const icon = toggle.querySelector('i');
+            if (expanded) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.title = 'Collapse block';
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.title = 'Expand block';
+            }
+        }
+
+        // initialize icon
+        setIcon(!card.classList.contains('collapsed'));
+
+        // clicking header or toggle toggles the card
+        header.addEventListener('click', function(e) {
+            // avoid double-handling when toggle clicked
+            if (e.target.closest('.block-toggle')) return;
+            card.classList.toggle('collapsed');
+            setIcon(!card.classList.contains('collapsed'));
+        });
+
+        if (toggle) {
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                card.classList.toggle('collapsed');
+                setIcon(!card.classList.contains('collapsed'));
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
