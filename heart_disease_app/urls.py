@@ -7,4 +7,5 @@ urlpatterns = [
     path('results/<int:prediction_id>/', views.results_view, name='results'),
     path('blockchain/', views.blockchain_view, name='blockchain'),
     path('history/', views.history_view, name='history'),
+    path('prediction/<int:prediction_id>/delete/', views.delete_prediction, name='delete_prediction'),
 ]

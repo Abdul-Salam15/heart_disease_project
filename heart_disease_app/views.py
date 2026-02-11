@@ -166,3 +166,20 @@ def history_view(request):
         'low_risk_count': low_count,
     }
     return render(request, 'history.html', context)
+
+
+def delete_prediction(request, prediction_id):
+    """Delete a Prediction and its related BlockchainRecord (cascade)"""
+    from django.shortcuts import get_object_or_404
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method for deletion')
+        return redirect('history')
+
+    prediction = get_object_or_404(Prediction, id=prediction_id)
+    try:
+        prediction.delete()
+        messages.success(request, f'Prediction #{prediction_id} deleted')
+    except Exception as e:
+        messages.error(request, f'Error deleting prediction: {e}')
+
+    return redirect('history')

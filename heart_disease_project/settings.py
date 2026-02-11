@@ -14,7 +14,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-heart-disease-predict
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # ALLOWED_HOSTS should be set in the environment as a comma-separated list
-allowed = os.environ.get('ALLOWED_HOSTS', 'cardiocare.pythonanywhere.com')
+# Default includes the production example plus localhost entries to make
+# local development (`runserver`) work without extra env vars.
+allowed = os.environ.get(
+    'ALLOWED_HOSTS', 'cardiocare.pythonanywhere.com,127.0.0.1,localhost'
+)
 ALLOWED_HOSTS = [h.strip() for h in allowed.split(',') if h.strip()]
 
 INSTALLED_APPS = [

@@ -38,9 +38,9 @@
         {% for block in blocks %}
         <div class="block-card collapsed {% if forloop.first %}genesis-block{% endif %}">
             <div class="block-header">
-                <div class="block-number">
+                <div class="block-number" title="DB block_index: {{ block.block_index }}">
                     <i class="fas fa-cube"></i>
-                    Block #{{ block.block_index }}
+                    Block #{{ forloop.counter }}
                 </div>
                 <div class="block-date">
                     {{ block.created_at|date:"M d, Y H:i:s" }}

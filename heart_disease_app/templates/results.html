@@ -242,6 +242,12 @@
         <a href="{% url 'history' %}" class="btn btn-secondary">
             <i class="fas fa-history"></i> View History
         </a>
+        <form action="{% url 'delete_prediction' prediction.id %}" method="post" style="display:inline-block; margin-left:8px;" onsubmit="return confirm('Delete prediction #{{ prediction.id }}? This action cannot be undone.')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete Record
+            </button>
+        </form>
         <button onclick="window.print()" class="btn btn-outline">
             <i class="fas fa-print"></i> Print Results
         </button>
