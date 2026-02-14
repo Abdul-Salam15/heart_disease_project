@@ -1,5 +1,38 @@
-// Auto-hide messages after 5 seconds
+// Mobile Navigation Toggle
 document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+    const overlay = document.getElementById('mobileOverlay');
+    
+    if (hamburger && navMenu && overlay) {
+        // Toggle menu
+        hamburger.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            hamburger.classList.toggle('active');
+            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+        });
+        
+        // Close menu when clicking overlay
+        overlay.addEventListener('click', function() {
+            navMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            hamburger.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        
+        // Close menu when clicking a nav link
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                hamburger.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+    
+    // Auto-hide messages after 5 seconds
     const messages = document.querySelectorAll('.message');
     messages.forEach(message => {
         setTimeout(() => {
