@@ -368,4 +368,3 @@ If you encounter any issues or have questions:
 **Version**: 2.0  
 **Last Updated**: February 2026
 
-Made with ❤️ for better healthcare through AI
