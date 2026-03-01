@@ -318,6 +318,195 @@ The application is fully responsive with three breakpoints:
    - 768px (iPad)
    - 1920px (Desktop)
 
+# CardioCare AI — Architecture Diagram
+
+## System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client["🌐 Client"]
+        Browser["User Browser"]
+    end
+
+    subgraph Deploy["☁️ Render.com (Docker)"]
+        direction TB
+        Gunicorn["Gunicorn\n3 Workers\n:8000"]
+
+        subgraph Django["Django 4.2 Application"]
+            direction TB
+
+            subgraph Project["heart_disease_project (Config)"]
+                Settings["settings.py"]
+                RootURLs["urls.py\n/admin/\n/ → app"]
+                WSGI["wsgi.py / asgi.py"]
+            end
+
+            subgraph App["heart_disease_app"]
+                direction TB
+
+                subgraph Views["Views (Controllers)"]
+                    HomeView["home()"]
+                    PredictView["predict_view()"]
+                    ResultsView["results_view()"]
+                    BlockchainView["blockchain_view()"]
+                    HistoryView["history_view()"]
+                    DeleteView["delete_prediction()"]
+                end
+
+                subgraph URLs["URL Routes"]
+                    R1["/ → home"]
+                    R2["/predict/ → predict_view"]
+                    R3["/results/id/ → results_view"]
+                    R4["/blockchain/ → blockchain_view"]
+                    R5["/history/ → history_view"]
+                    R6["/prediction/id/delete/ → delete_prediction"]
+                end
+
+                subgraph Models["Django Models (DB)"]
+                    Prediction["Prediction\n─────────\nage, sex, chest_pain_type\nresting_bp, cholesterol\nfasting_bs, resting_ecg\nmax_hr, exercise_angina\noldpeak\n─────────\nlogistic_probability\nrf_probability\nconsensus_probability\nprediction_result\nrisk_level\ncreated_at"]
+                    BlockchainRecord["BlockchainRecord\n─────────\nblock_index\nblock_hash\nprevious_hash\ndata\ncreated_at"]
+                end
+
+                subgraph Utils["utils/ (Business Logic)"]
+                    direction LR
+                    Preprocessor["DataPreprocessor\n& DataValidator"]
+                    MLManager["MLModelManager\n(ml_manager singleton)"]
+                    BlockchainMgr["BlockchainManager\n+ Block"]
+                end
+
+                AdminPanel["Django Admin\n─────────\nPredictionAdmin\nBlockchainRecordAdmin"]
+            end
+        end
+    end
+
+    subgraph MLArtifacts["🤖 ML Model Artifacts (models_data/)"]
+        LR["logistic_model.pkl\n(Logistic Regression)"]
+        Scaler["scaler.pkl\n(Feature Scaler)"]
+        Features["features.pkl\n(Feature Names)"]
+        NumFeatures["numerical_features.pkl\n(Numerical Feature Names)"]
+    end
+
+    subgraph DB["🗄️ Database (SQLite / PostgreSQL)"]
+        PredTable["predictions table"]
+        BlockTable["blockchain_records table"]
+    end
+
+    %% Connections
+    Browser -->|"HTTP Request"| Gunicorn
+    Gunicorn --> WSGI
+    WSGI --> RootURLs
+    RootURLs --> URLs
+    URLs --> Views
+
+    PredictView --> Preprocessor
+    Preprocessor --> MLManager
+    MLManager -->|"loads"| LR
+    MLManager -->|"loads"| Scaler
+    MLManager -->|"loads"| Features
+    MLManager -->|"loads"| NumFeatures
+    MLManager -->|"prediction result"| BlockchainMgr
+    BlockchainMgr -->|"creates"| BlockchainRecord
+    PredictView -->|"saves"| Prediction
+
+    Prediction --> PredTable
+    BlockchainRecord --> BlockTable
+
+    Views -->|"reads"| Prediction
+    Views -->|"reads"| BlockchainRecord
+
+    Gunicorn -->|"HTTP Response\n(HTML Templates)"| Browser
+```
+
+---
+
+## Request Flow — Prediction
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Browser
+    participant Gunicorn
+    participant predict_view
+    participant DataPreprocessor
+    participant MLModelManager
+    participant BlockchainManager
+    participant DB
+
+    User->>Browser: Fill form & submit
+    Browser->>Gunicorn: POST /predict/
+    Gunicorn->>predict_view: dispatch request
+    predict_view->>DataPreprocessor: validate & preprocess input
+    DataPreprocessor-->>predict_view: cleaned feature array
+    predict_view->>MLModelManager: run_inference(features)
+    MLModelManager-->>predict_view: logistic_prob, rf_prob, consensus, risk_level
+    predict_view->>DB: save Prediction record
+    predict_view->>BlockchainManager: add_block(prediction_data)
+    BlockchainManager->>DB: save BlockchainRecord
+    predict_view-->>Browser: redirect → /results/<id>/
+    Browser->>Gunicorn: GET /results/<id>/
+    Gunicorn-->>Browser: render results page
+    Browser-->>User: Display risk level & probabilities
+```
+
+---
+
+## Deployment Architecture
+
+```mermaid
+flowchart LR
+    Dev["👨‍💻 Developer\nGitHub Push"] -->|"main branch"| Render
+
+    subgraph Render["Render.com"]
+        direction TB
+        DockerBuild["Docker Build\n(python:3.11-slim)"]
+        EntryScript["entrypoint.sh\n1. migrate\n2. collectstatic\n3. gunicorn"]
+        App["Django App\ngunicorn :8000\n3 workers"]
+    end
+
+    DockerBuild --> EntryScript --> App
+    App -->|"SECRET_KEY\nDEBUG\nALLOWED_HOSTS"| EnvVars["🔐 Env Vars\n(Render Dashboard)"]
+```
+
+---
+
+## Data Models
+
+```mermaid
+erDiagram
+    PREDICTION {
+        int id PK
+        int age
+        varchar sex
+        varchar chest_pain_type
+        float resting_bp
+        float cholesterol
+        int fasting_bs
+        varchar resting_ecg
+        float max_hr
+        varchar exercise_angina
+        float oldpeak
+        float logistic_probability
+        float rf_probability
+        float consensus_probability
+        varchar prediction_result
+        varchar risk_level
+        datetime created_at
+    }
+
+    BLOCKCHAIN_RECORD {
+        int id PK
+        int block_index
+        varchar block_hash
+        varchar previous_hash
+        json data
+        datetime created_at
+        int prediction_id FK
+    }
+
+    PREDICTION ||--o| BLOCKCHAIN_RECORD : "recorded in"
+```
+
+
 ## ⚠️ Disclaimer
 
 **This application is for educational and research purposes only.**
